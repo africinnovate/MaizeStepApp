@@ -211,7 +211,5 @@ class CapturedInsectFragment : Fragment() {
            fragment.arguments = args
            return fragment
        }
-
-
 }
 
