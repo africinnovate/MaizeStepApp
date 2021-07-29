@@ -107,5 +107,17 @@
         android:name="com.chuks.maizestemapp.categoriesofspecies.africanarmyworm.ui.AfricanWormFragment"
         android:label="African Army Worm"
         tools:layout="@layout/fragment_african_worm" />
+    <fragment
+        android:id="@+id/AfricaDetailedFragment"
+        android:name="com.chuks.maizestemapp.common.ui.AfricanWormDetailedFragment"
+        android:label="CategoriesDetailedFragment" />
+    <fragment
+        android:id="@+id/egyptianWormDetailedFragment"
+        android:name="com.chuks.maizestemapp.common.ui.EgyptianWormDetailedFragment"
+        android:label="EgyptianWormDetailedFragment" />
+    <fragment
+        android:id="@+id/fallWormDetailedFragment"
+        android:name="com.chuks.maizestemapp.common.ui.FallWormDetailedFragment"
+        android:label="FallWormDetailedFragment" />
 
 </navigation>

@@ -46,4 +46,21 @@ class FallArmyWormRepositoryImpl(
         }
 
     }
-}
+
+    override suspend fun deleteInsect() {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteAllBYName(name: String) {
+        val response = insectApi.deleteAllInsect()
+        try {
+            if(response.isSuccessful){
+                fallArmyWormDao.deleteAllByName(name)
+                Timber.d("response $response")
+                Timber.d("deleted item ${response.body()}")
+            }
+        }catch (e : Exception){
+            Timber.e(e)
+        }
+    }
+    }

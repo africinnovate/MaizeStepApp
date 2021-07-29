@@ -16,4 +16,10 @@ interface FallArmyWormRepository {
      * This [requestFallArmyWorm] and insert into the database
      * */
     suspend fun requestFallArmyWorm()
+
+    // This will delete items from the database
+    suspend fun deleteInsect()
+
+    // This will delete all items from the database
+    suspend fun deleteAllBYName(name: String)
 }

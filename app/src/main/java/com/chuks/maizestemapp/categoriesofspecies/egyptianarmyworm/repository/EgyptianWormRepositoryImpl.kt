@@ -42,4 +42,12 @@ class EgyptianWormRepositoryImpl(private val insectApi: MaizeInsectApi,
             Timber.i("Throw an exception ${e.message}")
         }
     }
+
+    override suspend fun deleteInsect() {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteAllInsect() {
+        TODO("Not yet implemented")
+    }
 }

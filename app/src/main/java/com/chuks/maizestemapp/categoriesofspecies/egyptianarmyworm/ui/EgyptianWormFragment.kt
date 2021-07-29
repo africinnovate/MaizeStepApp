@@ -12,21 +12,26 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.chuks.maizestemapp.R
-import com.chuks.maizestemapp.categoriesofspecies.africanarmyworm.viewmodel.AfricanArmyWormViewModel
+import com.chuks.maizestemapp.capturedinsect.ui.CapturedInsectFragment
+import com.chuks.maizestemapp.capturedinsect.viewmodel.CapturedInsectViewModel
+import com.chuks.maizestemapp.categoriesofspecies.africanarmyworm.ui.AfricanWormFragment
 import com.chuks.maizestemapp.categoriesofspecies.egyptianarmyworm.viewmodel.EgyptianWormViewModel
+import com.chuks.maizestemapp.categoriesofspecies.fallarmyworm.ui.FallArmywormFragment
 import com.chuks.maizestemapp.common.adapter.BaseRecyclerAdapter
+import com.chuks.maizestemapp.common.adapter.EqyptianBaseRecyclerAdapter
 import com.chuks.maizestemapp.common.data.Insect
+import com.chuks.maizestemapp.common.util.SwipeToDeleteCallback
+import com.chuks.maizestemapp.common.util.SwipeToDeleteCallbackEgyptian
 import com.chuks.maizestemapp.common.util.showToast
-import com.chuks.maizestemapp.databinding.FragmentAfricanWormBinding
 import com.chuks.maizestemapp.databinding.FragmentEgyptianWormBinding
-import kotlinx.android.synthetic.main.fragment_african_worm.*
 import kotlinx.android.synthetic.main.fragment_african_worm.emptyState
 import kotlinx.android.synthetic.main.fragment_african_worm.progressBar
-import kotlinx.android.synthetic.main.fragment_captured_insect.*
 import kotlinx.android.synthetic.main.fragment_egyptian_worm.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 
 /**
@@ -35,11 +40,13 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
  */
 class EgyptianWormFragment : Fragment() {
 
-    private lateinit var egyptianRecyclerAdapter: BaseRecyclerAdapter
+    private lateinit var egyptianRecyclerAdapter: EqyptianBaseRecyclerAdapter
     private lateinit var binding: FragmentEgyptianWormBinding
     private  var insectList: List<Insect> = ArrayList()
     private val TAG : String = "EgyptianWormFragment"
     private val egyptianViewModel by viewModel<EgyptianWormViewModel>()
+    private val capturedInsectViewModel by viewModel<CapturedInsectViewModel>()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,16 +58,16 @@ class EgyptianWormFragment : Fragment() {
         setData()
         showProgress()
         showMessage()
-        egyptianRecyclerAdapter.layoutId = R.layout.insect_list_item
+        egyptianRecyclerAdapter.layoutId = R.layout.egyt_insect_list_item
         egyptianRecyclerAdapter.items = insectList
 
         egyptianRecyclerAdapter.onCustomClickItemListner ={view, position ->
 
             val bundle = Bundle()
-            bundle.putInt("position", position )
+            bundle.putInt("egypt", position )
 
             NavHostFragment.findNavController(this)
-                .navigate(R.id.detailedFragment, bundle)
+                .navigate(R.id.egyptianWormDetailedFragment, bundle)
 
             Toast.makeText(context, "You clicked $position", Toast.LENGTH_LONG).show()
 
@@ -76,16 +83,26 @@ class EgyptianWormFragment : Fragment() {
         }
         return binding.root
     }
-
+    fun deleteEgytianInsect(position: Int){
+        val predictionId = insectList[position].classPredictionId
+        Timber.d("predictionId is $predictionId")
+        capturedInsectViewModel.deleteInsect(predictionId)
+    }
     /**
      * The [initializeRecyclerView] shows a list of all egyptian worm
      */
     private fun initializeRecyclerView(){
         binding.egyptianRecyclerView?.apply {
             layoutManager = LinearLayoutManager(context)
-            egyptianRecyclerAdapter = BaseRecyclerAdapter()
+            egyptianRecyclerAdapter = EqyptianBaseRecyclerAdapter(context, this@EgyptianWormFragment)
             setHasFixedSize(true)
             adapter = egyptianRecyclerAdapter
+            val itemTouchHelper = ItemTouchHelper(
+                SwipeToDeleteCallbackEgyptian(
+                    egyptianRecyclerAdapter
+                )
+            )
+            itemTouchHelper.attachToRecyclerView(binding.egyptianRecyclerView)
         }
     }
 
@@ -94,6 +111,8 @@ class EgyptianWormFragment : Fragment() {
      */
     private fun setData(){
         egyptianViewModel.egyptianList("ECLW").observe(viewLifecycleOwner, Observer {
+            insectList = it
+            Timber.d("egy size ${insectList.size}")
             Log.d(TAG , "captured $it")
             if(it.isNotEmpty()){
                 egyptianRecyclerView.visibility = View.VISIBLE

@@ -3,7 +3,11 @@ package com.chuks.maizestemapp.maizestemplot.viewmodel
 import androidx.lifecycle.*
 import com.chuks.maizestemapp.common.data.Insect
 import com.chuks.maizestemapp.common.data.MaizePlot
+import com.chuks.maizestemapp.common.util.DateValueFormatter
+import com.chuks.maizestemapp.common.util.MyUtils
 import com.chuks.maizestemapp.maizestemplot.repository.MaizePlotRepository
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -25,13 +29,18 @@ class MaizePlotViewModel(private val maizePlotRepository: MaizePlotRepository) :
 
     fun maizePlot(name: String) = maizePlotRepository.getInsect(name)
 
-    fun dataEntries(name: String): LiveData<List<Entry>> =
+    fun dataEntries(name: String,lineChart: LineChart): LiveData<List<Entry>> =
         Transformations.map(maizePlot(name)) { insects: List<Insect> ->
             if (insects.isEmpty()) emptyList<Entry>()
-            insects.map { Entry(
-                it.date.takeLast(2).toInt().toFloat(), it.count.toFloat())
-             }
+//            val xAxis: XAxis = lineChart.xAxis
+//           xAxis.valueFormatter =  DateValueFormatter(insects)
+            insects.map {
+                Entry(
+                it.date.takeLast(2).toInt().toFloat(), it.count.toFloat()
+                )
+            }
         }
+
 
     init {
 

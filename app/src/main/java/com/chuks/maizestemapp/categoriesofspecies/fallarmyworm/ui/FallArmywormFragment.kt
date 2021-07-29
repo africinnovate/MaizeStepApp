@@ -1,6 +1,7 @@
 package com.chuks.maizestemapp.categoriesofspecies.fallarmyworm.ui
 
 
+import android.accounts.NetworkErrorException
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,17 +13,26 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.chuks.maizestemapp.R
+import com.chuks.maizestemapp.capturedinsect.ui.CapturedInsectFragment
+import com.chuks.maizestemapp.capturedinsect.viewmodel.CapturedInsectViewModel
+import com.chuks.maizestemapp.categoriesofspecies.africanarmyworm.ui.AfricanWormFragment
+import com.chuks.maizestemapp.categoriesofspecies.egyptianarmyworm.ui.EgyptianWormFragment
 import com.chuks.maizestemapp.categoriesofspecies.fallarmyworm.viewmodel.FallArmyWormViewModel
 import com.chuks.maizestemapp.common.adapter.BaseRecyclerAdapter
+import com.chuks.maizestemapp.common.adapter.FallBaseRecyclerAdapter
 import com.chuks.maizestemapp.common.data.Insect
+import com.chuks.maizestemapp.common.util.SwipeToDeleteCallback
+import com.chuks.maizestemapp.common.util.SwipeToDeleteCallbackFall
 import com.chuks.maizestemapp.common.util.showToast
 import com.chuks.maizestemapp.databinding.FragmentFallArmywormBinding
 import kotlinx.android.synthetic.main.fragment_egyptian_worm.emptyState
 import kotlinx.android.synthetic.main.fragment_egyptian_worm.progressBar
 import kotlinx.android.synthetic.main.fragment_fall_armyworm.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 
 /**
@@ -31,11 +41,13 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
  */
 class FallArmywormFragment : Fragment() {
 
-    private lateinit var fallArmyRecyclerAdapter: BaseRecyclerAdapter
+    private lateinit var fallArmyRecyclerAdapter: FallBaseRecyclerAdapter
     private lateinit var binding: FragmentFallArmywormBinding
     private  var insectList: List<Insect> = ArrayList()
     private val TAG : String = "FallArmywormFragment"
     private val fallArmyViewModel by viewModel<FallArmyWormViewModel>()
+    private val capturedInsectViewModel by viewModel<CapturedInsectViewModel>()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -48,16 +60,16 @@ class FallArmywormFragment : Fragment() {
         setData()
         showProgress()
         showMessage()
-        fallArmyRecyclerAdapter.layoutId = R.layout.insect_list_item
+        fallArmyRecyclerAdapter.layoutId = R.layout.fall_insect_list_item
         fallArmyRecyclerAdapter.items = insectList
 
         fallArmyRecyclerAdapter.onCustomClickItemListner ={view, position ->
 
             val bundle = Bundle()
-            bundle.putInt("position", position )
+            bundle.putInt("fall", position )
 
             NavHostFragment.findNavController(this)
-                .navigate(R.id.detailedFragment, bundle)
+                .navigate(R.id.fallWormDetailedFragment, bundle)
 
             Toast.makeText(context, "You clicked $position", Toast.LENGTH_LONG).show()
 
@@ -75,15 +87,27 @@ class FallArmywormFragment : Fragment() {
         }
         return binding.root
     }
+    fun deleteFallInsect(position: Int){
+        val predictionId = insectList[position].classPredictionId
+        Timber.d("predictionId is $predictionId")
+        capturedInsectViewModel.deleteInsect(predictionId)
+    }
     /**
      * The [initializeRecyclerView] shows a list of all fall armyworm
      */
     private fun initializeRecyclerView(){
         binding.fallRecyclerView?.apply {
             layoutManager = LinearLayoutManager(context)
-            fallArmyRecyclerAdapter = BaseRecyclerAdapter()
+            fallArmyRecyclerAdapter = FallBaseRecyclerAdapter(context,
+                this@FallArmywormFragment)
             setHasFixedSize(true)
             adapter = fallArmyRecyclerAdapter
+            val itemTouchHelper = ItemTouchHelper(
+                SwipeToDeleteCallbackFall(
+                    fallArmyRecyclerAdapter
+                )
+            )
+            itemTouchHelper.attachToRecyclerView(binding.fallRecyclerView)
         }
     }
 
@@ -92,6 +116,8 @@ class FallArmywormFragment : Fragment() {
      */
     private fun setData(){
         fallArmyViewModel.fallArmyList("FAW").observe(viewLifecycleOwner, Observer {
+            insectList = it
+            Timber.d("fall list ${insectList.size}")
             Log.d(TAG , "captured $it")
             if(it.isNotEmpty()){
                 fallRecyclerView.visibility = View.VISIBLE

@@ -24,6 +24,16 @@ class CapturedInsectViewModel(private val capturedInsectRepository: CapturedInse
 
     val capturedInsect = capturedInsectRepository.getAllCapturedInsect()
 
+    fun deleteInsect(id : String?){
+        viewModelScope.launch {
+            capturedInsectRepository.deleteInsect(id)
+        }
+    }
+
+    fun deleteAllInsect(){
+        viewModelScope.launch { capturedInsectRepository.deleteAllInsect() }
+    }
+
     init {
 
         viewModelScope.launch {

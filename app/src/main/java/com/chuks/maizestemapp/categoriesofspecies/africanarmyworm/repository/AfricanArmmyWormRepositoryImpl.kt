@@ -47,5 +47,13 @@ class AfricanArmmyWormRepositoryImpl(
         }
     }
 
+    override suspend fun deleteInsect() {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteAllInsect() {
+        TODO("Not yet implemented")
+    }
+
 
 }

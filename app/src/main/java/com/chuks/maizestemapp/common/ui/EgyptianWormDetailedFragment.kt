@@ -15,23 +15,23 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.chuks.maizestemapp.R
-import com.chuks.maizestemapp.capturedinsect.viewmodel.CapturedInsectViewModel
 import com.chuks.maizestemapp.categoriesofspecies.fallarmyworm.viewmodel.FallArmyWormViewModel
 import com.chuks.maizestemapp.databinding.FragmentDetailedBinding
+import com.chuks.maizestemapp.databinding.FragmentEgyptDetailedBinding
+import com.chuks.maizestemapp.databinding.FragmentEgyptDetailedBindingImpl
+import com.chuks.maizestemapp.databinding.FragmentEgyptianWormBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 import java.lang.Exception
-import java.lang.NullPointerException
 import java.util.*
 
 
 /**
 * This Detailed Fragment displays the details of each list items
 * */
-class DetailedFragment : Fragment() {
+class EgyptianWormDetailedFragment : Fragment() {
 
-    private lateinit var binding: FragmentDetailedBinding
-    private val capturedInsectViewModel by viewModel<CapturedInsectViewModel>()
+    private lateinit var binding: FragmentEgyptDetailedBinding
     private val viewModel by viewModel<FallArmyWormViewModel>()
     lateinit var lat : String
     lateinit  var long : String
@@ -42,37 +42,39 @@ class DetailedFragment : Fragment() {
 
         binding = DataBindingUtil.inflate(
             inflater,
-            com.chuks.maizestemapp.R.layout.fragment_detailed, container, false
+            com.chuks.maizestemapp.R.layout.fragment_egypt_detailed, container, false
         )
 
         binding.back.setOnClickListener { findNavController().popBackStack() }
 
         // detailView implementation
-        arguments?.let { bundle ->
-            bundle.getInt("position")
-                ?.let { position ->
-                    capturedInsectViewModel.capturedInsect.observe(viewLifecycleOwner, Observer {
-                        val data = it[position]
-
-                        Glide.with(this).asBitmap().override(1080, 600)
-                            .load(data.insect_image).into(binding.insectImage)
-                        binding.title.text = data.name
-                        lat = data.latitude
-                        long = data.longitude
-//                        binding.locationLat.text = data.latitude
-//                        binding.locationLong.text = data.longitude
-                        binding.timeTv.text = data.time
-                        binding.calendar.text = data.date
-                        binding.count.text = data.count.toString()
-                        getAddress(lat, long)
-                        openLocationOnMap(lat, long)
-                    })
-                }
-        }
+        getPlantByNameDetailed("ECLW", "egypt")
         return binding.root
     }
 
+    private fun getPlantByNameDetailed(name: String, key: String){
+               arguments?.let { bundle ->
+            bundle.getInt(key)
+                ?.let { position ->
+                    viewModel.fallArmyList(name).observe(viewLifecycleOwner, Observer {
+                        val data = it[position]
+                            Glide.with(this).asBitmap().override(1080, 600)
+                                .load(data.insect_image).into(binding.insectImage)
+                            binding.title.text = data.name
+                            lat = data.latitude
+                            long = data.longitude
+//                        binding.locationLat.text = data.latitude
+//                        binding.locationLong.text = data.longitude
+                            binding.timeTv.text = data.time
+                            binding.calendar.text = data.date
+                            binding.count.text = data.count.toString()
+                            getAddress(lat, long)
+                            openLocationOnMap(lat, long)
 
+                    })
+                }
+        }
+    }
 
   private  fun getAddress(lat: String, long : String){
         try {
@@ -86,11 +88,12 @@ class DetailedFragment : Fragment() {
                     1
                 ) // Here 1 represent max location result to returned, by documents it recommended 1 to 5
 
-                val address: String = addresses[0].getAddressLine(0) // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-//                val street: String = addresses[0].featureName
-                val state: String = addresses[0].adminArea
-//                val country: String = addresses[0].countryName
-                binding.locationTv.text = "$address $state"
+                val address: String = addresses[0]
+                    .getAddressLine(0) // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+//                    val city: String = addresses[0].getLocality()
+                    val state: String = addresses[0].getAdminArea()
+                    val country: String = addresses[0].getCountryName()
+                    binding.locationTv.text = "$address $state $country"
 
             }else{
                 Timber.d("No address")

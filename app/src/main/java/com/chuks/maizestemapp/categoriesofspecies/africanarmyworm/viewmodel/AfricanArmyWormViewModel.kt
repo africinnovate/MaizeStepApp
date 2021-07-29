@@ -29,7 +29,6 @@ class AfricanArmyWormViewModel(private val africanArmyWormRepository: AfricanArm
 
 
     init {
-
         viewModelScope.launch {
             try {
                 _showProgress.postValue(true)

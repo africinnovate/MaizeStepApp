@@ -3,41 +3,37 @@ package com.chuks.maizestemapp.maizestemplot.ui
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.Transformations
 import androidx.navigation.fragment.findNavController
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.chuks.maizestemapp.R
 import com.chuks.maizestemapp.capturedinsect.viewmodel.CapturedInsectViewModel
 import com.chuks.maizestemapp.categoriesofspecies.egyptianarmyworm.viewmodel.EgyptianWormViewModel
-import com.chuks.maizestemapp.common.data.DataSource
 import com.chuks.maizestemapp.common.data.Insect
-import com.chuks.maizestemapp.common.data.MaizePlot
+import com.chuks.maizestemapp.common.util.DateValueFormatter
 import com.chuks.maizestemapp.common.util.showToast
 import com.chuks.maizestemapp.maizestemplot.viewmodel.MaizePlotViewModel
 import com.chuks.maizestemapp.maizestemplot.viewmodel.combineWith
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.*
+import com.github.mikephil.charting.components.XAxis.XAxisPosition
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import kotlinx.android.synthetic.main.fragment_maize_insect_plot.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
-import com.github.mikephil.charting.utils.EntryXComparator
+import java.sql.Timestamp
 import java.util.*
 import kotlin.collections.ArrayList
+
 
 /**
  * This class handles the plotting of the chart
@@ -75,6 +71,8 @@ class MaizeInsectPlot : Fragment() {
         showProgress()
         toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
 
+//       val  dateTime = getDateTimeFromEpocLongOfSeconds(1626045358)
+
         swipe.setOnRefreshListener {
             initMe()
             showMessage()
@@ -84,146 +82,88 @@ class MaizeInsectPlot : Fragment() {
         return view
     }
 
+    private fun lineGraph1(
+        africaEntry: List<Entry>,
+        egyptEntry: List<Entry>,
+        fallEntry: List<Entry>
+    ) {
+        val africaDataSet = LineDataSet(africaEntry, "AAW")
+        val egytDataSet = LineDataSet(egyptEntry, "ECLW")
+        val fallDataSet = LineDataSet(fallEntry, "FAW")
+        val etLine = LineDataSet(etDataValue(), "ET")
+        val eilLine = LineDataSet(eilDataValue(), "EIL")
 
-    /**
-     * The [lineGraph] has an [entry] param and sets the different features of the chart
-     */
-    private fun lineGraph(entry: List<Entry>) {
-//        val linedataSet1 = LineDataSet(entry, "Insect Pests Density Population Plots\n" +
-//                " for EIL & ET determination")
-        val linedataSet1 = LineDataSet(entry, "Fall")
-        val linedataSet2 = LineDataSet(entry, "Egyptian")
-        val linedataSet3 = LineDataSet(entry, "Fall")
-
-        val dataSet = ArrayList<ILineDataSet>()
-        dataSet.add(linedataSet1)
-        dataSet.add(linedataSet2)
-        dataSet.add(linedataSet3)
-
-        linedataSet1.notifyDataSetChanged()
-        linedataSet2.notifyDataSetChanged()
-        linedataSet3.notifyDataSetChanged()
-
-        //Adding features to the lines
-        linedataSet1.setDrawCircleHole(true)
-        linedataSet1.setValueTextColor(Color.BLACK)
-        linedataSet1.valueTextSize = 16f
-//        linedataSet1.setColors(colorArray)
-        linedataSet1.color = Color.RED
-        linedataSet2.color = Color.GREEN
-        linedataSet3.color = Color.BLUE
-        linedataSet1.lineWidth = 2f
-        linechart.setDrawGridBackground(true)
-        linechart.setNoDataText("No Data")
-        linechart.setNoDataTextColor(Color.RED)
-        linechart.setDrawBorders(true)
-        linechart.setBorderColor(Color.BLUE)
-        linechart.xAxis.getFormattedLabel(R.string.time)
-//        linechart.xAxis.getFormattedLabel(R.string.insect_density)
-        // Adding Legend
-        val legend: Legend = linechart.legend
-        legend.isEnabled
-        legend.form = Legend.LegendForm.LINE
-
-        var legenedEntries = arrayListOf<LegendEntry>()
-
-
-        /*Labelling of the legends with their names and color*/
-        legenedEntries.add(
-            LegendEntry(
-                "Fall Army Worm",
-                Legend.LegendForm.SQUARE,
-                8f,
-                8f,
-                null,
-                Color.rgb(139, 235, 255)
-            )
-        )
-        legenedEntries.add(
-            LegendEntry(
-                "Egyptian Army Worm",
-                Legend.LegendForm.SQUARE,
-                8f,
-                8f,
-                null,
-                Color.rgb(246, 174, 94)
-            )
-        )
-        legenedEntries.add(
-            LegendEntry(
-                "African Army Worm",
-                Legend.LegendForm.SQUARE,
-                8f,
-                8f,
-                null,
-                Color.rgb(197, 255, 140)
-            )
-        )
-        legenedEntries.add(
-            LegendEntry(
-                "Economic Injury Level",
-                Legend.LegendForm.SQUARE,
-                8f,
-                8f,
-                null,
-                Color.rgb(103, 166, 239)
-            )
-        )
-        legenedEntries.add(
-            LegendEntry(
-                "Economic Threshold",
-                Legend.LegendForm.SQUARE,
-                8f,
-                8f,
-                null,
-                Color.rgb(251, 110, 119)
-            )
-        )
-        legend.setCustom(legenedEntries)
-        legend.setYOffset(2f)
-        legend.setXOffset(2f)
-        legend.setYEntrySpace(0f)
-        legend.setTextSize(5f)
-        //Adding description
-        val description = Description()
-        description.text = "Day captured"
-        description.textColor = Color.BLACK
-        description.textSize = 16f
-        linechart.description = description
-
-        val linedata = LineData(dataSet)
-        linechart.data = linedata
-        linechart.invalidate()
-    }
-
-
-    private fun lineGraph1(firstSetEntry: List<Entry>, secondSetEntry: List<Entry>, thirdSetEntry: List<Entry>) {
-        val linedataSet1 = LineDataSet(firstSetEntry, "Africa")
-        val linedataSet2 = LineDataSet(secondSetEntry, "Egypt")
-        val linedataSet3 = LineDataSet(thirdSetEntry, "Fall")
+        africaDataSet.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+        egytDataSet.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+//        fallDataSet.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
 
         val dataSet = ArrayList<ILineDataSet>()
-        dataSet.add(linedataSet1)
-        dataSet.add(linedataSet2)
-         dataSet.add(linedataSet3)
-        linedataSet1.notifyDataSetChanged()
-        linedataSet2.notifyDataSetChanged()
-        linedataSet3.notifyDataSetChanged()
+        dataSet.add(africaDataSet)
+        dataSet.add(egytDataSet)
+        dataSet.add(fallDataSet)
+        dataSet.add(etLine)
+        dataSet.add(eilLine)
+
+        //Limit lines for et and eil
+        val et = LimitLine(2.4f, "ET")
+        et.lineColor = Color.GREEN
+        et.lineWidth = 2f
+
+        val eil = LimitLine(3.6f, "EIL")
+        lineChart.axisRight.removeAllLimitLines()
+        lineChart.axisRight.addLimitLine(et)
+        lineChart.axisRight.addLimitLine(eil)
+        eil.textSize = 10f
+        et.textSize = 10f
+
+        val leftAxis: YAxis = linechart.axisLeft
+        leftAxis.removeAllLimitLines()
+
+        eil.lineColor = Color.RED
+        eil.lineWidth = 2f
+
+        africaDataSet.notifyDataSetChanged()
+        egytDataSet.notifyDataSetChanged()
+        fallDataSet.notifyDataSetChanged()
+        etLine.notifyDataSetChanged()
+        eilLine.notifyDataSetChanged()
 
         //Adding features to the lines
-        linedataSet1.setDrawCircleHole(true)
-        linedataSet1.setValueTextColor(Color.BLACK)
-        linedataSet1.valueTextSize = 16f
-//        linedataSet1.setColors(colorArray)
-        linedataSet1.color = Color.RED
-        linedataSet2.color = Color.GREEN
-        linedataSet3.color = Color.BLUE
-        linedataSet1.lineWidth = 2f
+        africaDataSet.valueTextSize = 8f
+        egytDataSet.valueTextSize = 8f
+        fallDataSet.valueTextSize = 8f
+
+        val xAxis: XAxis = linechart.xAxis
+        val position = XAxisPosition.BOTTOM
+        xAxis.position = position
+        xAxis.axisMinimum = 0f
+        xAxis.setLabelCount(6, true)
+        xAxis.isGranularityEnabled = true
+        xAxis.granularity = 7f
+//        xAxis.labelRotationAngle = 315f
+//        xAxis.setCenterAxisLabels(true)
+
+        africaDataSet.color = Color.rgb(0, 0, 204)
+        egytDataSet.color = Color.rgb(0, 204, 204)
+        fallDataSet.color = Color.rgb(255, 0, 244)
+        etLine.color = Color.GREEN
+        eilLine.color = Color.RED
+
+        africaDataSet.lineWidth = 2f
+        egytDataSet.lineWidth = 2f
+        fallDataSet.lineWidth = 2f
 
         val description = Description()
         description.text = "Date captured"
         description.textColor = Color.BLACK
         description.textSize = 16f
+        linechart.description = description
+//        description.text = UISetters.getFullMonthName();
+        linechart.setDrawGridBackground(true)
+        linechart.setNoDataText("No Data")
+        linechart.setNoDataTextColor(Color.RED)
+        linechart.setTouchEnabled(true)
+        linechart.setPinchZoom(true)
 
 
         val linedata = LineData(dataSet)
@@ -231,17 +171,15 @@ class MaizeInsectPlot : Fragment() {
         linechart.invalidate()
     }
 
-    fun initMe() {
-        val africanEntries = insectViewModel.dataEntries("AAW")
-        val egyptianEntries = insectViewModel.dataEntries("ECLW")
-        val fallEntries = insectViewModel.dataEntries("FAW")
-        val ET = insectViewModel.dataEntries("ET")
-        val EIL = insectViewModel.dataEntries("EIL")
+    private fun initMe() {
+        val africanEntries = insectViewModel.dataEntries("AAW", linechart)
+        val egyptianEntries = insectViewModel.dataEntries("ECLW", linechart)
+        val fallEntries = insectViewModel.dataEntries("FAW", linechart)
         africanEntries.combineWith(egyptianEntries, fallEntries) { afr, egy, fall ->
             Timber.d("afric ${afr?.size}")
             Timber.d("egy ${egy?.size}")
-            lineGraph1(afr?: emptyList(), egy ?: emptyList(),
-                fall?: emptyList())
+            Timber.d("fall ${fall?.size}")
+            lineGraph1(afr ?: emptyList(), egy ?: emptyList(), fall ?: emptyList())
         }.observe(viewLifecycleOwner, Observer {
         })
     }
@@ -293,6 +231,36 @@ class MaizeInsectPlot : Fragment() {
                 linechart.visibility = View.GONE
             }
         })
+    }
+
+    private fun etDataValue(): ArrayList<Entry> {
+        val dataVal = ArrayList<Entry>()
+        dataVal.add(Entry(24f, 2.4f))
+        return dataVal
+    }
+
+    private fun eilDataValue(): ArrayList<Entry> {
+        val dataVal = ArrayList<Entry>()
+        dataVal.add(Entry(24f, 3.6f))
+        return dataVal
+    }
+
+    private fun testDataValue(): ArrayList<Entry> {
+        val dataVal = ArrayList<Entry>()
+        dataVal.add(Entry(20f, 3.6f))
+        dataVal.add(Entry(22f, 5f))
+        dataVal.add(Entry(12f, 4f))
+        return dataVal
+    }
+
+    private fun testDataValue2(): ArrayList<Entry> {
+        val dataVal = ArrayList<Entry>()
+        dataVal.add(Entry(2f, 6f))
+        dataVal.add(Entry(15f, 2f))
+        dataVal.add(Entry(10f, 4f))
+        dataVal.add(Entry(17f, 3f))
+        dataVal.add(Entry(18f, 1f))
+        return dataVal
     }
 }
 

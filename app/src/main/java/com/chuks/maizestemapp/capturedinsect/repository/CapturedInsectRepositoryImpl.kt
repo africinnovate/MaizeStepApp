@@ -7,6 +7,7 @@ import com.chuks.maizestemapp.common.data.remote.MaizeInsectApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.lang.Exception
 
 /**
  * This is CapturedInsectRepositoryImpl class. This class takes in two params [maizeInsectApi]
@@ -42,6 +43,32 @@ class CapturedInsectRepositoryImpl(
             }
         } catch (e: Throwable) {
             Timber.i("Throw an exception ${e.message}")
+        }
+    }
+
+    override suspend fun deleteInsect(id: String?) {
+        val response = maizeInsectApi.deleteInsect(id)
+        try {
+            if(response.isSuccessful){
+                capturedInsectDao.delete(id)
+                Timber.d("response $response")
+               Timber.d("deleted item ${response.body()}")
+            }
+        }catch (e : Exception){
+            Timber.e(e)
+        }
+    }
+
+    override suspend fun deleteAllInsect() {
+        val response = maizeInsectApi.deleteAllInsect()
+        try {
+            if(response.isSuccessful){
+                capturedInsectDao.deleteAll()
+                Timber.d("response $response")
+                Timber.d("deleted item ${response.body()}")
+            }
+        }catch (e : Exception){
+            Timber.e(e)
         }
     }
 }

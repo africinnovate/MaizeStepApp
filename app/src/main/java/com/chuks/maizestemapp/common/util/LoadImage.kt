@@ -5,6 +5,9 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.chuks.maizestemapp.R
 import de.hdodenhof.circleimageview.CircleImageView
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * The [loadImage] helps to load images/bind images to the view
@@ -21,5 +24,4 @@ import de.hdodenhof.circleimageview.CircleImageView
                 .into(view)
         }
     }
-
 }

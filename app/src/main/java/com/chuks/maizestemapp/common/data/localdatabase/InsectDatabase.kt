@@ -14,7 +14,7 @@ import com.chuks.maizestemapp.maizestemplot.dao.MaizePlotDao
  * This setup the Room Database to enable
  * offline storage of data
  **/
-@Database(entities = [Insect::class, MaizePlot::class], version = 2, exportSchema = false)
+@Database(entities = [Insect::class, MaizePlot::class], version = 1, exportSchema = false)
 abstract class InsectDatabase : RoomDatabase() {
     abstract val capturedInsectDao: InsectDao
     abstract val africanArmyWormDao: AfricanArmyWormDao

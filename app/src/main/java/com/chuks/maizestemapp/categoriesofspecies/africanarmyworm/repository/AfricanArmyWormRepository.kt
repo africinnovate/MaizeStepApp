@@ -18,6 +18,10 @@ interface AfricanArmyWormRepository {
      * */
     suspend fun requestAfricanArmyWorm()
 
+    // This will delete items from the database
+    suspend fun deleteInsect()
 
+    // This will delete all items from the database
+    suspend fun deleteAllInsect()
 
 }

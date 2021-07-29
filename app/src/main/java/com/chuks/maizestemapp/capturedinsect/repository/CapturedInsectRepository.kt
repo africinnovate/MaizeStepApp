@@ -17,4 +17,10 @@ interface CapturedInsectRepository {
      * This [requestCapturedInsect] and insert into the database
      * */
     suspend fun requestCapturedInsect(): Unit?
+
+    // This will delete items from the database
+    suspend fun deleteInsect(id: String?)
+
+    // This will delete all items from the database
+    suspend fun deleteAllInsect()
 }

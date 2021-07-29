@@ -26,8 +26,11 @@ import kotlinx.android.synthetic.main.insect_list_item.*
  *Common adapter to load the recyclerView
  */
 
-class BaseRecyclerAdapter(val context: Context, val fragment: CapturedInsectFragment) :
-    RecyclerView.Adapter<BaseRecyclerAdapter.BaseViewHolder>() {
+class EqyptianBaseRecyclerAdapter(
+    val context: Context,
+    val fragment: EgyptianWormFragment
+) :
+    RecyclerView.Adapter<EqyptianBaseRecyclerAdapter.BaseViewHolder>() {
 
     //Layout ID that needs to be given to inflate the row
     @LayoutRes
@@ -116,10 +119,9 @@ class BaseRecyclerAdapter(val context: Context, val fragment: CapturedInsectFrag
 //        mRecentlyDeletedItem = items[position]
 //        mRecentlyDeletedItemPosition = position
 //        items.removeAt(position)
-        fragment.deleteInsect(position)
+        fragment.deleteEgytianInsect(position)
         notifyItemRemoved(position)
         notifyItemChanged(position)
-
 //        showUndoSnackbar()
     }
 

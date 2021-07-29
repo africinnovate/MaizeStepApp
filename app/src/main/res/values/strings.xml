@@ -95,6 +95,11 @@
     <string name="maize_stem_borer">Maize Stem Borers Control Measures</string>
     <string name="plot_title"><![CDATA[Insect Pests Density Population Plots\n for EIL & ET determination]]></string>
     <string name="not_available">Not available</string>
+    <string name="delete">Delete</string>
+    <string name="confirm">Confirm</string>
+    <string name="are_you_sure">Are you sure, you want to delete all? Once deleted it can not be undone!</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
 
 </resources>

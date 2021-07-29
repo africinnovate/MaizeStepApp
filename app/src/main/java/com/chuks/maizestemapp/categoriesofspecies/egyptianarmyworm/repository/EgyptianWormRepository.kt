@@ -16,4 +16,10 @@ interface EgyptianWormRepository {
      * This [requestAfricanArmyWorm] and insert into the database
      * */
     suspend fun requestEgyptianArmyWorm()
+
+    // This will delete items from the database
+    suspend fun deleteInsect()
+
+    // This will delete all items from the database
+    suspend fun deleteAllInsect()
 }

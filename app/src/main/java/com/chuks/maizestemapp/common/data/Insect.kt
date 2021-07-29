@@ -35,11 +35,13 @@ data class Insect(
     @SerializedName("ET")
     var economic_threshold: Double = 2.4,
     @SerializedName("EIL")
-    var economic_injury_level: Double = 3.6
+    var economic_injury_level: Double = 3.6,
+    @SerializedName("Timestamp")
+    var timeStamp : Int
 
 ){
     constructor() : this(0, "", "", "", "",
-        "", "", "",  0, 2.4, 3.6)
+        "", "", "",  0, 2.4, 3.6, 0)
 }
 
 /**

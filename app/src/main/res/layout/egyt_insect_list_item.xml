@@ -11,7 +11,7 @@
 
         <variable
             name="handler"
-            type="com.chuks.maizestemapp.common.adapter.BaseRecyclerAdapter.BaseViewHolder" />
+            type="com.chuks.maizestemapp.common.adapter.EqyptianBaseRecyclerAdapter.BaseViewHolder" />
         
         <variable
             name="position"
